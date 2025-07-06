@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { cn } from "../../utils/cn";
 
@@ -23,6 +23,25 @@ export const CanvasRevealEffect = ({
     dotSize?: number;
     showGradient?: boolean;
 }) => {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return (
+            <div className={cn("h-full relative bg-white w-full", containerClassName)}>
+                <div className="h-full w-full flex items-center justify-center">
+                    <div className="animate-pulse">Loading...</div>
+                </div>
+                {showGradient && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%]" />
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={cn("h-full relative bg-white w-full", containerClassName)}>
             <div className="h-full w-full">
@@ -65,6 +84,12 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
     shader = "",
     center = ["x", "y"],
 }) => {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const uniforms = React.useMemo(() => {
         let colorsArray = [
             colors[0],
@@ -117,6 +142,10 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
             },
         };
     }, [colors, opacities, totalSize, dotSize]);
+
+    if (!isMounted) {
+        return null;
+    }
 
     return (
         <Shader
@@ -179,6 +208,7 @@ type Uniforms = {
         type: string;
     };
 };
+
 const ShaderMaterial = ({
     source,
     uniforms,
@@ -191,15 +221,15 @@ const ShaderMaterial = ({
 }) => {
     const { size } = useThree();
     const ref = useRef<THREE.Mesh>();
-    let lastFrameTime = 0;
+    const lastFrameTimeRef = useRef(0);
 
     useFrame(({ clock }) => {
         if (!ref.current) return;
         const timestamp = clock.getElapsedTime();
-        if (timestamp - lastFrameTime < 1 / maxFps) {
+        if (timestamp - lastFrameTimeRef.current < 1 / maxFps) {
             return;
         }
-        lastFrameTime = timestamp;
+        lastFrameTimeRef.current = timestamp;
 
         const material: any = ref.current.material;
         const timeLocation = material.uniforms.u_time;
@@ -248,7 +278,7 @@ const ShaderMaterial = ({
         preparedUniforms["u_time"] = { value: 0, type: "1f" };
         preparedUniforms["u_resolution"] = {
             value: new THREE.Vector2(size.width * 2, size.height * 2),
-        }; // Initialize u_resolution
+        };
         return preparedUniforms;
     };
 
@@ -277,7 +307,7 @@ const ShaderMaterial = ({
         });
 
         return materialObject;
-    }, [size.width, size.height, source]);
+    }, [size.width, size.height, source, uniforms]);
 
     return (
         <mesh ref={ref as any}>
@@ -288,12 +318,23 @@ const ShaderMaterial = ({
 };
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return null;
+    }
+
     return (
-        <Canvas className="absolute inset-0  h-full w-full">
+        <Canvas className="absolute inset-0 h-full w-full">
             <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
         </Canvas>
     );
 };
+
 interface ShaderProps {
     source: string;
     uniforms: {

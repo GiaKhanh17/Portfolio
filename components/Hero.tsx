@@ -1,3 +1,4 @@
+'use client'
 import { FaLocationArrow } from "react-icons/fa6"
 
 import MagicButton from "./ui/MagicButton"
@@ -31,8 +32,8 @@ const Hero = () => {
         lg:max-w-[60vw] flex flex-col items-center
         justify-center">
           <h2 className="uppercase tracking-widest
-          text-xs text-center text-blue-100 max-w-80">
-            Dynamic Web Magic With Next.js
+          text-xs text-center text-blue-100 max-w-96">
+            Không chỉ làm web – tôi tạo trải nghiệm.
           </h2>
 
           <TextGenerateEffect

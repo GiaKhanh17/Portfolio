@@ -1,5 +1,5 @@
+'use client'
 import AppRoach from "../../components/AppRoach";
-import Clients from "../../components/Clients";
 import Experience from "../../components/Experience";
 import Footer from "../../components/Footer";
 import Grid from "../../components/Grid";
@@ -17,9 +17,9 @@ export default function Home() {
         <FloatingNav navItems={navItems}/>
         <Hero />
         <Grid />
-        <RecentProject />
-        <Clients />
         <Experience />
+        <RecentProject />
+        {/* <Clients /> */}
         <AppRoach />
         <Footer />
       </div>

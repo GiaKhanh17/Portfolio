@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "../../utils/cn";
 
-export const   BackgroundGradientAnimation = ({
+export const BackgroundGradientAnimation = ({
   gradientBackgroundStart = "rgb(108, 0, 162)",
   gradientBackgroundEnd = "rgb(0, 17, 82)",
   firstColor = "18, 113, 255",
@@ -35,12 +35,21 @@ export const   BackgroundGradientAnimation = ({
   containerClassName?: string;
 }) => {
   const interactiveRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const [curX, setCurX] = useState(0);
   const [curY, setCurY] = useState(0);
   const [tgX, setTgX] = useState(0);
   const [tgY, setTgY] = useState(0);
+  const [isSafari, setIsSafari] = useState(false);
+
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     document.body.style.setProperty(
       "--gradient-background-start",
       gradientBackgroundStart
@@ -57,9 +66,23 @@ export const   BackgroundGradientAnimation = ({
     document.body.style.setProperty("--pointer-color", pointerColor);
     document.body.style.setProperty("--size", size);
     document.body.style.setProperty("--blending-value", blendingValue);
-  }, []);
+  }, [
+    isMounted,
+    gradientBackgroundStart,
+    gradientBackgroundEnd,
+    firstColor,
+    secondColor,
+    thirdColor,
+    fourthColor,
+    fifthColor,
+    pointerColor,
+    size,
+    blendingValue,
+  ]);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     function move() {
       if (!interactiveRef.current) {
         return;
@@ -72,20 +95,40 @@ export const   BackgroundGradientAnimation = ({
     }
 
     move();
-  }, [tgX, tgY]);
+  }, [tgX, tgY, curX, curY, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Check if navigator is available (client-side only)
+    if (typeof navigator !== 'undefined') {
+      setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+    }
+  }, [isMounted]);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (interactiveRef.current) {
-      const rect = interactiveRef.current.getBoundingClientRect();
-      setTgX(event.clientX - rect.left);
-      setTgY(event.clientY - rect.top);
-    }
+    if (!isMounted || !interactiveRef.current) return;
+
+    const rect = interactiveRef.current.getBoundingClientRect();
+    setTgX(event.clientX - rect.left);
+    setTgY(event.clientY - rect.top);
   };
 
-  const [isSafari, setIsSafari] = useState(false);
-  useEffect(() => {
-    setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
-  }, []);
+  if (!isMounted) {
+    return (
+      <div
+        className={cn(
+          "h-full w-full absolute overflow-hidden top-0 left-0",
+          containerClassName
+        )}
+        style={{
+          background: `linear-gradient(40deg, ${gradientBackgroundStart}, ${gradientBackgroundEnd})`,
+        }}
+      >
+        <div className={cn("", className)}>{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div
