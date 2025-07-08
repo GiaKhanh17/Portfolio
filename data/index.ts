@@ -116,7 +116,7 @@ export const projects = [
       "/three.svg",
       "/icons8-sentry-50.png",
     ],
-    link: "https://github.com/quangthai1005/Dejavu_Bar_Duan1_New",
+    link: "https://github.com/GiaKhanh17/Portfolio",
   },
   {
     id: 4,
@@ -128,7 +128,7 @@ export const projects = [
       "/icons8-sql-server-64.png",
       "/icons8-apache-netbeans.svg",
     ],
-    link: "https://github.com/GiaKhanh17/Portfolio",
+    link: "https://github.com/quangthai1005/Dejavu_Bar_Duan1_New",
   },
 ];
 
