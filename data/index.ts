@@ -237,7 +237,7 @@ export const socialMedia = [
   },
   {
     id: 2,
-    link: "#",
+    link: "https://www.facebook.com/ken.zi.7902564",
     img: "/square-facebook-brands.svg",
   },
   // {
