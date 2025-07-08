@@ -6,9 +6,59 @@ import React from "react";
 const World = dynamic(() => import("./Globe").then((m) => m.World), 
 {
   ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-96">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
+    </div>
+  )
 });
 
 export function GlobeDemo() {
+  // Error boundary fallback
+  const [hasError, setHasError] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    
+    // Check for WebGL support
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        console.warn('WebGL not supported, showing fallback');
+        setHasError(true);
+      }
+    } catch (error) {
+      console.warn('WebGL check failed:', error);
+      setHasError(true);
+    }
+  }, []);
+
+  // Don't render anything until mounted
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-pulse bg-gray-800 rounded-lg w-full h-full flex items-center justify-center">
+          <span className="text-gray-400">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show fallback if error or no WebGL
+  if (hasError) {
+    return (
+      <div className="flex items-center justify-center h-96 bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🌐</div>
+          <h3 className="text-white text-xl mb-2">Interactive Globe</h3>
+          <p className="text-gray-300">3D visualization unavailable</p>
+        </div>
+      </div>
+    );
+  }
+
   const globeConfig = {
     pointSize: 4,
     globeColor: "#062056",
@@ -31,6 +81,7 @@ export function GlobeDemo() {
     autoRotate: true,
     autoRotateSpeed: 0.5,
   };
+  
   const colors = ["#06b6d4", "#3b82f6", "#6366f1"];
   const sampleArcs = [
     {
@@ -395,20 +446,34 @@ export function GlobeDemo() {
     },
   ];
 
-  return (
-    <div className="flex items-center justify-center
-    absolute -left-5 top-36 md:top-40 w-full h-full">
-      <div className="max-w-7xl mx-auto w-full 
-      relative overflow-hidden px-4 h-96">
+  try {
+    return (
+      <div className="flex items-center justify-center
+      absolute -left-5 top-36 md:top-40 w-full h-full">
+        <div className="max-w-7xl mx-auto w-full 
+        relative overflow-hidden px-4 h-96">
 
-        <div className="absolute w-full bottom-0 
-        inset-x-0 h-40 bg-gradient-to-b pointer-events-none 
-        select-none from-transparent dark:to-black
-        to-white z-40" />
-        <div className="absolute w-full h-72 md:h-full z-10">
-          <World data={sampleArcs} globeConfig={globeConfig} />
+          <div className="absolute w-full bottom-0 
+          inset-x-0 h-40 bg-gradient-to-b pointer-events-none 
+          select-none from-transparent dark:to-black
+          to-white z-40" />
+          <div className="absolute w-full h-72 md:h-full z-10">
+            <World data={sampleArcs} globeConfig={globeConfig} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('Globe rendering error:', error);
+    setHasError(true);
+    return (
+      <div className="flex items-center justify-center h-96 bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🌐</div>
+          <h3 className="text-white text-xl mb-2">Globe Visualization</h3>
+          <p className="text-gray-300">Fallback view</p>
+        </div>
+      </div>
+    );
+  }
 }

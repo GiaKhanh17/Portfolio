@@ -9,28 +9,30 @@ Sentry.init({
 
   // Add optional integrations for additional features
   integrations: [
-    Sentry.replayIntegration({
-      // Additional Replay cofiguration goes in here, for example:
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
+    // Disable replay integration để tránh conflict với 3D content
+    // Sentry.replayIntegration({
+    //   // Additional Replay cofiguration goes in here, for example:
+    //   maskAllText: true,
+    //   blockAllMedia: true,
+    // }),
     Sentry.feedbackIntegration({
       // Additional SDK configuration goes in here, for example:
       colorScheme: "dark",
     }),
   ],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Giảm sampling rate để tránh performance issues
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
 
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+  // Disable replay sampling để tránh conflict với 3D rendering
+  replaysSessionSampleRate: 0,
 
-  // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+  // Giảm error replay sampling
+  replaysOnErrorSampleRate: 0,
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  // Disable debug để tránh console spam
   debug: false,
+
+  // Chỉ enable Sentry trong production và khi không có lỗi
+  enabled: process.env.NODE_ENV === 'production',
 });
