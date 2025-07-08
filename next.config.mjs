@@ -1,9 +1,17 @@
 import { withSentryConfig } from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
+    // Xóa output: 'export' - đây là nguyên nhân chính gây màn hình đen
+    // output: 'export',
     typescript:{
         ignoreBuildErrors: true,
+    },
+    // Thêm optimization cho 3D libraries
+    webpack: (config) => {
+        config.externals.push({
+            'three': 'three'
+        });
+        return config;
     }
 };
 
@@ -32,7 +40,8 @@ enabled: true,
 // This can increase your server load as well as your hosting bill.
 // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
 // side errors will fail.
-tunnelRoute: "/monitoring",
+// Disable tunnelRoute để tránh conflict với deployment
+// tunnelRoute: "/monitoring",
 
 // Hides source maps from generated client bundles
 hideSourceMaps: true,
@@ -44,5 +53,6 @@ disableLogger: true,
 // See the following for more information:
 // https://docs.sentry.io/product/crons/
 // https://vercel.com/docs/cron-jobs
-automaticVercelMonitors: true,
+// Disable để tránh lỗi trên Vercel
+automaticVercelMonitors: false,
 });
