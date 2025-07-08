@@ -33,7 +33,7 @@ export const gridItems = [
     description: "Tôi liên tục cố gắng cải thiện",
     className: "lg:col-span-1 md:col-span-2",
     imgClassName: "",
-    titleClassName: "justify-center",
+    titleClassName: "justify-center opacity-50",
     img: "",
     spareImg: "",
   },
